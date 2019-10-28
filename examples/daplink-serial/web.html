@@ -26,11 +26,12 @@
 
     <script type="text/javascript" src="../../dist/dap.umd.js"></script>
     <script>
+        let target;
 
         // Listen to serial output from the device
         const listen = async (device, resultsEl) => {
             const transport = new DAPjs.WebUSB(device);
-            const target = new DAPjs.DAPLink(transport);
+            target = new DAPjs.DAPLink(transport);
 
             target.on(DAPjs.DAPLink.EVENT_SERIAL_DATA, data => {
                 resultsEl.innerHTML += `${data}`;

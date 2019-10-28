@@ -36,6 +36,10 @@ const DEFAULT_SERIAL_DELAY = 200;
  * @hidden
  */
 const DEFAULT_PAGE_SIZE = 62;
+/**
+ * @hidden
+ */
+const DEFAULT_PACKET_SIZE = 62;
 
 /**
  * DAPLink Class
@@ -186,11 +190,28 @@ export class DAPLink extends CmsisDAP implements Proxy {
      * @param data The data to write
      * @returns Promise
      */
-    public serialWrite(data: string): Promise<void> {
+    public serialWrite(data: string): Promise<any> {
+        const nPackets = (data.length / DEFAULT_PACKET_SIZE) + 1;
+        let p: Promise<any>;
+
+        p = this.serialWritePacket(data.substr(0, DEFAULT_PACKET_SIZE));
+
+        for (let n = 1; n < nPackets; n++) {
+            p = p.then(() => this.serialWritePacket(data.substr(n * DEFAULT_PACKET_SIZE, DEFAULT_PACKET_SIZE)));
+        }
+
+        return p;
+    }
+
+    /**
+     * Send Serial Packet
+     * @param data The DEFAULT_PACKET_SIZE bytes of data for the packet
+     * @returns Promise
+     */
+    private serialWritePacket(data: string): Promise<any> {
         const arrayData = data.split("").map((e: string) => e.charCodeAt(0));
         arrayData.unshift(arrayData.length);
-        return this.send(DAPLinkSerial.WRITE, new Uint8Array(arrayData).buffer)
-        .then(() => undefined);
+        return this.send(DAPLinkSerial.WRITE, new Uint8Array(arrayData).buffer);
     }
 }
 
