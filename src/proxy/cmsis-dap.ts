@@ -139,7 +139,7 @@ export class CmsisDAP extends EventEmitter implements Proxy {
      * @param data Data to use
      * @returns Promise of DataView
      */
-    protected send(command: number, data?: BufferSource): Promise<DataView> {
+    protected async send(command: number, data?: BufferSource): Promise<DataView> {
         const array = this.bufferSourceToUint8Array(command, data);
 
         return this.transport.write(array)
